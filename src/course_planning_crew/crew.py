@@ -11,7 +11,7 @@ class CollegePlanningCrew():
     tasks_config = 'config/tasks.yaml'
 
     def __init__(self):
-        # Initialize your custom tool with the path to your FAISS index [cite: 83]
+
         self.retrieval_tool = FAISSRetrievalTool(
             folder_path='vector_database'
         )
@@ -21,14 +21,14 @@ class CollegePlanningCrew():
         return Agent(
             config=self.agents_config['intake_agent'],
             verbose=True,
-            allow_delegation=False # Keeps the agent focused on student profile normalization [cite: 91]
+            allow_delegation=False
         )
 
     @agent
     def catalog_retriever_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['catalog_retriever_agent'],
-            tools=[self.retrieval_tool], # Links Phase 2 tool to Phase 3 agents [cite: 79]
+            tools=[self.retrieval_tool],
             verbose=True
         )
 
@@ -43,7 +43,7 @@ class CollegePlanningCrew():
     def verifier_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['verifier_agent'],
-            tools=[self.retrieval_tool], # Used to double-check claims against the knowledge base [cite: 93]
+            tools=[self.retrieval_tool],
             verbose=True
         )
 
@@ -57,21 +57,21 @@ class CollegePlanningCrew():
     def retrieval_task(self) -> Task:
         return Task(
             config=self.tasks_config['retrieval_task'],
-            context=[self.intake_task()] # Passes student info to the searcher [cite: 91]
+            context=[self.intake_task()]
         )
 
     @task
     def planning_task(self) -> Task:
         return Task(
             config=self.tasks_config['planning_task'],
-            context=[self.intake_task(), self.retrieval_task()] # Handles $A \rightarrow B \rightarrow C$ logic [cite: 21, 92]
+            context=[self.intake_task(), self.retrieval_task()]
         )
 
     @task
     def verification_task(self) -> Task:
         return Task(
             config=self.tasks_config['verification_task'],
-            context=[self.retrieval_task(), self.planning_task()] # Final grounding check [cite: 16, 93]
+            context=[self.retrieval_task(), self.planning_task()]
         )
 
     @crew
@@ -80,6 +80,6 @@ class CollegePlanningCrew():
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
-            process=Process.sequential, # Ensures agents work in the correct order [cite: 94]
+            process=Process.sequential,
             verbose=True
         )
