@@ -1,17 +1,32 @@
-research_task:
+intake_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
+    Analyze the student's initial request: {user_input}. Your job is to identify and extract the following variables: target major, completed courses (including grades), target term (Fall/Spring), and max courses/credits . If any of these "required inputs" are missing, you must generate 1 to 5 clarifying questions to ask the student before any planning begins .
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    A structured "Student Profile" (JSON or bulleted list) containing all extracted data, OR a prioritized list of specific questions for the user if the data is insufficient.
+  agent: intake_agent
 
-reporting_task:
+retrieval_task:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Using the "Student Profile" from the Intake Task, use your search tools to find the exact catalog text for the student's program requirements and target courses. You must find documentation for prerequisite chains (e.g., $A \rightarrow B \rightarrow C$), "either/or" rules, and minimum grade requirements . For every piece of information, you must capture the URL and Section Heading.
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    A comprehensive set of raw requirement text and policy snippets, each paired with its specific source citation (URL and Heading).
+  agent: catalog_retriever_agent
+
+planning_task:
+  description: >
+    Synthesize the "Student Profile" with the "Retrieved Catalog Data" to propose a term plan . You must determine if the student is Eligible for their target courses. If they are eligible, propose a list of courses for the next term . For every course, provide a Why justification showing which prerequisites were satisfied.
+  expected_output: >
+    A draft term plan including course lists, eligibility decisions, reasoning for each selection, and a list of any "risks/assumptions" (e.g., assuming a course is offered in the Fall).
+  agent: planner_agent
+
+verification_task:
+  description: >
+    Perform a final audit of the draft plan to ensure Correctness and Grounding. Every rule or prerequisite claim MUST have a verifiable citation (URL + Heading). If the catalog does not contain the answer to a question (e.g., specific professor details), you must trigger the Safe Abstention protocol . Format the final output strictly according to the mandatory template .
+  expected_output: >
+    The final student-facing response in the following Mandatory Format :
+    Answer/Plan: (The eligibility decision or term list)
+    Why (requirements/prereqs satisfied): (The logic used)
+    Citations: (URL + Section Heading for every claim)
+    Clarifying questions (if needed): (Questions for missing info)
+    Assumptions / Not in catalog: (What you couldn't find or assumed)
+  agent: verifier_agent
