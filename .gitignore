@@ -2,8 +2,7 @@
 __pycache__/
 .DS_Store
 
-# Created by https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
-# Edit at https://www.toptal.com/developers/gitignore?templates=python,jupyternotebooks
+
 
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
@@ -190,6 +189,5 @@ pyrightconfig.json
 
 # User Added
 similarity.pkl
-Documents
 Documents/*.pdf
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
