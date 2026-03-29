@@ -2,7 +2,8 @@ from crewai.tools import BaseTool
 from pydantic import BaseModel, Field
 from typing import Type
 from langchain_community.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
+from typing import Any
 
 # 1. Define the Input Schema
 class FAISSSearchInput(BaseModel):

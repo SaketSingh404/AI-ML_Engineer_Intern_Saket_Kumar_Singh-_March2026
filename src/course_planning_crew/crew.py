@@ -1,63 +1,85 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+from course_planning_crew.tools.custom_tool import FAISSRetrievalTool
 
 @CrewBase
-class CoursePlanningCrew():
-    """CoursePlanningCrew crew"""
+class CollegePlanningCrew():
+    """CollegePlanningCrew for Agentic RAG Assessment"""
 
-    agents: list[BaseAgent]
-    tasks: list[Task]
+    # Path to your YAML files
+    agents_config = 'config/agents.yaml'
+    tasks_config = 'config/tasks.yaml'
 
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
+    def __init__(self):
+        # Initialize your custom tool with the path to your FAISS index [cite: 83]
+        self.retrieval_tool = FAISSRetrievalTool(
+            folder_path='vector_database'
+        )
+
     @agent
-    def researcher(self) -> Agent:
+    def intake_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
+            config=self.agents_config['intake_agent'],
+            verbose=True,
+            allow_delegation=False # Keeps the agent focused on student profile normalization [cite: 91]
+        )
+
+    @agent
+    def catalog_retriever_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['catalog_retriever_agent'],
+            tools=[self.retrieval_tool], # Links Phase 2 tool to Phase 3 agents [cite: 79]
             verbose=True
         )
 
     @agent
-    def reporting_analyst(self) -> Agent:
+    def planner_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
+            config=self.agents_config['planner_agent'],
             verbose=True
         )
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
-    @task
-    def research_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+    @agent
+    def verifier_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['verifier_agent'],
+            tools=[self.retrieval_tool], # Used to double-check claims against the knowledge base [cite: 93]
+            verbose=True
         )
 
     @task
-    def reporting_task(self) -> Task:
+    def intake_task(self) -> Task:
         return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
+            config=self.tasks_config['intake_task']
+        )
+
+    @task
+    def retrieval_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['retrieval_task'],
+            context=[self.intake_task()] # Passes student info to the searcher [cite: 91]
+        )
+
+    @task
+    def planning_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['planning_task'],
+            context=[self.intake_task(), self.retrieval_task()] # Handles $A \rightarrow B \rightarrow C$ logic [cite: 21, 92]
+        )
+
+    @task
+    def verification_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['verification_task'],
+            context=[self.retrieval_task(), self.planning_task()] # Final grounding check [cite: 16, 93]
         )
 
     @crew
     def crew(self) -> Crew:
-        """Creates the CoursePlanningCrew crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
-
+        """Creates the CollegePlanning crew"""
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
-            verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            agents=self.agents,
+            tasks=self.tasks,
+            process=Process.sequential, # Ensures agents work in the correct order [cite: 94]
+            verbose=True
         )

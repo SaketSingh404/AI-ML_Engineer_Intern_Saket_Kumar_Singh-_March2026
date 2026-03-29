@@ -1,94 +1,96 @@
-#!/usr/bin/env python
-import sys
-import warnings
-
-from datetime import datetime
-
-from course_planning_crew.crew import CoursePlanningCrew
-
-warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
-
-# This main file is intended to be a way for you to run your
-# crew locally, so refrain from adding unnecessary logic into this file.
-# Replace with inputs you want to test with, it will automatically
-# interpolate any tasks and agents information
+import os
+import csv
+from course_planning_crew.crew import CollegePlanningCrew
 
 def run():
     """
-    Run the crew.
+    The entry point required by 'crewai run'.
+    This will run the sample interaction for your demo. [cite: 119, 131]
     """
+    sample_query = "I'm a CS major and I've finished MATH120. What do I need before enrolling in Database Systems?"
+
+    print(f"\n--- Processing Sample Query: {sample_query} ---\n")
+    inputs = {'user_input': sample_query}
+
+    # Initialize and kickoff the crew [cite: 119]
+    result = CollegePlanningCrew().crew().kickoff(inputs=inputs)
+
+    print("\n" + "="*50)
+    print("FINAL AGENTIC RESPONSE")
+    print("="*50)
+    print(result)
+
+def run_single_query(query):
+    """Runs a single interaction for demonstration purposes."""
+    print(f"\n--- Processing Query: {query} ---\n")
     inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
+        'user_input': query
     }
-
-    try:
-        CoursePlanningCrew().crew().kickoff(inputs=inputs)
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew: {e}")
+    # Initialize and kickoff the crew [cite: 119]
+    result = CollegePlanningCrew().crew().kickoff(inputs=inputs)
+    return result
 
 
-def train():
+def run_evaluation_set():
     """
-    Train the crew for a given number of iterations.
+    Executes the mandatory 25-query test set and saves to CSV. [cite: 103-106, 120]
+    Categories: Prereq checks (10), Prereq chains (5), Program reqs (5), Trick questions (5).
     """
-    inputs = {
-        "topic": "AI LLMs",
-        'current_year': str(datetime.now().year)
-    }
-    try:
-        CoursePlanningCrew().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+    test_queries = [
+        # 1. 10 Prerequisite Checks (Eligible/Not Eligible) [cite: 104]
+        "Can I take CS301 if I've taken CS101 and MATH120?",
+        "I've completed Introduction to Biology. Can I enroll in Genetics next term?",
+        # ... add 8 more similar queries based on your chosen catalog ...
 
-    except Exception as e:
-        raise Exception(f"An error occurred while training the crew: {e}")
+        # 2. 5 Prerequisite Chains (Multi-hop) [cite: 105]
+        "What is the full sequence of courses I need to take before Advanced AI?",
+        "If I want to take the Senior Capstone, what 3-course chain must I complete first?",
+        # ... add 3 more ...
 
-def replay():
-    """
-    Replay the crew execution from a specific task.
-    """
-    try:
-        CoursePlanningCrew().crew().replay(task_id=sys.argv[1])
+        # 3. 5 Program Requirement Questions [cite: 106]
+        "How many elective credits do I need for a Minor in Data Science?",
+        "What are the residency requirements for graduation in this program?",
+        # ... add 3 more ...
 
-    except Exception as e:
-        raise Exception(f"An error occurred while replaying the crew: {e}")
+        # 4. 5 'Not in docs' / Trick Questions [cite: 106]
+        "Who is the easiest professor for Organic Chemistry?",
+        "What time is the CS101 final exam scheduled for this semester?",
+        # ... add 3 more ...
+    ]
 
-def test():
-    """
-    Test the crew execution and returns the results.
-    """
-    inputs = {
-        "topic": "AI LLMs",
-        "current_year": str(datetime.now().year)
-    }
+    results_log = []
+    print(f"Starting Evaluation of {len(test_queries)} queries...")
 
-    try:
-        CoursePlanningCrew().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
+    for i, query in enumerate(test_queries, 1):
+        print(f"Evaluating {i}/{len(test_queries)}...")
+        try:
+            output = run_single_query(query)
+            results_log.append({
+                "query": query,
+                "output": output,
+                "has_citation": "Citations:" in str(output) and "http" in str(output)
+            })
+        except Exception as e:
+            results_log.append({"query": query, "output": f"Error: {str(e)}", "has_citation": False})
 
-    except Exception as e:
-        raise Exception(f"An error occurred while testing the crew: {e}")
+    # Save results for your Report [cite: 107, 120]
+    keys = results_log[0].keys()
+    with open('evaluation_results.csv', 'w', newline='', encoding='utf-8') as f:
+        dict_writer = csv.DictWriter(f, fieldnames=keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(results_log)
 
-def run_with_trigger():
-    """
-    Run the crew with trigger payload.
-    """
-    import json
+    print("\nEvaluation complete. Results saved to 'evaluation_results.csv'.")
 
-    if len(sys.argv) < 2:
-        raise Exception("No trigger payload provided. Please provide JSON payload as argument.")
+if __name__ == "__main__":
+    # 1. Run a sample interaction for the demo [cite: 119, 131]
+    sample_query = "I'm a CS major and I've finished MATH120. What do I need before enrolling in Database Systems?"
+    final_output = run_single_query(sample_query)
 
-    try:
-        trigger_payload = json.loads(sys.argv[1])
-    except json.JSONDecodeError:
-        raise Exception("Invalid JSON payload provided as argument")
+    print("\n" + "="*50)
+    print("FINAL AGENTIC RESPONSE")
+    print("="*50)
+    print(final_output)
 
-    inputs = {
-        "crewai_trigger_payload": trigger_payload,
-        "topic": "",
-        "current_year": ""
-    }
-
-    try:
-        result = CoursePlanningCrew().crew().kickoff(inputs=inputs)
-        return result
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew with trigger: {e}")
+    # 2. Uncomment the line below to run the full 25-query evaluation for your report [cite: 120]
+    # run_evaluation_set()
