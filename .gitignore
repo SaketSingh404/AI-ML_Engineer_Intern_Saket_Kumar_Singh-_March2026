@@ -190,4 +190,5 @@ pyrightconfig.json
 # User Added
 similarity.pkl
 Documents/*.pdf
+.virtual_documents/
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
