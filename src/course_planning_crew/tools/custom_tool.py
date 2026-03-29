@@ -24,18 +24,20 @@ class FAISSRetrievalTool(BaseTool):
     def __init__(self, folder_path: str, index_name: str = "index", **kwargs):
         super().__init__(**kwargs)
         # Load the index once during initialization
-        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-small-en")
         self.vector_store = FAISS.load_local(
-            folder_path,
+            'vector_database',
             embeddings,
-            index_name=index_name,
-            allow_dangerous_deserialization=True # Required for local pickle loading
+            # index_name=index_name,
+            allow_dangerous_deserialization=True
         )
 
     def _run(self, query: str) -> str:
         """Synchronous search logic."""
         # Retrieve top 5 similar chunks
-        docs = self.vector_store.similarity_search(query, k=5)
+        retriever = self.vector_store.as_retriever(search_kwargs={'k':5})
+        docs = retriever.invoke(query)
+        # docs = self.vector_store.similarity_search(query, k=5)
 
         # Format the output for the Agent
         results = []
