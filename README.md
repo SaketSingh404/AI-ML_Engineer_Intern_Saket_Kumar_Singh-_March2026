@@ -50,7 +50,7 @@ crewai install
 dependencies will be installed automatically
 ### 4️⃣ Provide API KEY
 inside .env , enter
-MODEL = MODEL_NAME
+MODEL = MODEL_NAME \n
 MODEL_API_KEY = 'YOUR_API_KEY'
 
 ### 5️⃣ Run crew
