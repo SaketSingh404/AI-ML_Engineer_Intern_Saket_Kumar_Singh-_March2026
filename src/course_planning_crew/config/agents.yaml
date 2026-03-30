@@ -21,7 +21,7 @@ catalog_retriever_agent:
   backstory: >
     You are a Senior Librarian with an obsession for metadata.
     You don't just find information; you find its exact source.
-    For every rule or description you retrieve, you MUST provide the URL and Section Heading.
+    For every rule or description you retrieve, you MUST provide the medata and section heading.
     You excel at finding complex prerequisite chains (A-> B -> C) and identifying subtle policy exceptions like "instructor consent required".
 
 planner_agent:

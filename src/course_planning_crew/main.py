@@ -3,22 +3,22 @@ import csv
 from course_planning_crew.crew import CollegePlanningCrew
 
 def run():
-    # print("\n--- Academic Assistant Interactive Mode ---")
-    # user_q = input("Enter your course planning question: ")
+    print("\n--- Academic Assistant Interactive Mode ---")
+    user_q = input("Enter your course planning question: ")
 
-    # if user_q.strip():
-    #     inputs = {'user_input': user_q}
-    #     # Initialize and kickoff the crew
-    #     result = CollegePlanningCrew().crew().kickoff(inputs=inputs)
+    if user_q.strip():
+        inputs = {'user_input': user_q}
+        # Initialize and kickoff the crew
+        result = CollegePlanningCrew().crew().kickoff(inputs=inputs)
 
-    #     print("\n" + "="*50)
-    #     print("AGENTIC RESPONSE")
-    #     print("="*50)
-    #     print(result)
-    # else:
-    #     print("Query cannot be empty.")
-    print("\n--- Starting Mandatory 25-Query Evaluation Set ---")
-    run_evaluation_set()
+        print("\n" + "="*50)
+        print("AGENTIC RESPONSE")
+        print("="*50)
+        print(result)
+    else:
+        print("Query cannot be empty.")
+    # print("\n--- Starting Mandatory 25-Query Evaluation Set ---")
+    # run_evaluation_set()
 
 def run_single_query(query):
     """Runs a single interaction for demonstration purposes."""
@@ -60,7 +60,7 @@ def run_evaluation_set():
         "How many total elective credits do I need to complete a Major in Software Engineering?",
         "What are the minimum residency requirements (credits taken on campus) to graduate from this program?",
         "Can I count Data Structures toward both my Major and my Minor requirements?",
-        "What is the minimum cumulative GPA I need to maintain to stay in the Btech program?",
+        "What courses I need to take to do Minor in Machine Learning ?",
         "List the three different categories of General Education requirements I must fulfill for this degree.",
 
         # 4. 5 'Not in docs' / Trick Questions

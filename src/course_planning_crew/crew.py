@@ -29,6 +29,7 @@ class CollegePlanningCrew():
         return Agent(
             config=self.agents_config['catalog_retriever_agent'],
             tools=[self.retrieval_tool],
+            max_iter = 3,
             verbose=True
         )
 
