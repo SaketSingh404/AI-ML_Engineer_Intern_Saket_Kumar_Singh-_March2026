@@ -15,7 +15,7 @@ This repository contains an Agentic RAG (Retrieval-Augmented Generation) system 
 ---
 ## Write-up and Tutorial Video
 - Demo-video : https://drive.google.com/file/d/1JBn1AdKmemSv3KSJ81OELwy_phRhn9e3/view?usp=sharing
-- Write-up: https://drive.google.com/file/d/12rmNUjBfiO_MzwtL0KhEKOLxu7sVhP6u/view?usp=sharing
+- Write-up: https://drive.google.com/file/d/1h-4ypdZk1y_p-ChWEigZ2JAHBKTFuZ0w/view?usp=sharing
 ## 🛠️ Tech Stack
 
 - Orchestration: CrewAI
